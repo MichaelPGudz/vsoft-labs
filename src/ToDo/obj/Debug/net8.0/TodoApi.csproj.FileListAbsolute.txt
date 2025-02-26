@@ -144,3 +144,4 @@
 /workspaces/vsoft-labs/src/ToDo/obj/Debug/net8.0/TodoApi.pdb
 /workspaces/vsoft-labs/src/ToDo/obj/Debug/net8.0/TodoApi.genruntimeconfig.cache
 /workspaces/vsoft-labs/src/ToDo/obj/Debug/net8.0/ref/TodoApi.dll
+/workspaces/vsoft-labs/src/ToDo/bin/Debug/net8.0/appsettings.json
