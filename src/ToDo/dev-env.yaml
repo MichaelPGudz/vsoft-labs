@@ -1,0 +1,20 @@
+apiVersion: 2018-10-01
+location: polandcentral
+name: testlabs
+properties:
+  containers:
+  - name: mycontainer
+    properties:
+      environmentVariables:
+        - name: 'ASPNETCORE_ENVIRONMENT'
+          value: 'Development'
+      image: dotnet
+      ports: [8080:8080]
+      resources:
+        requests:
+          cpu: 1.0
+          memoryInGB: 1.5
+  osType: Linux
+  restartPolicy: Always
+tags: null
+type: Microsoft.ContainerInstance/containerGroups
