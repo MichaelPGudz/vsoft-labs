@@ -24,7 +24,7 @@ jobs:
           registry: ${{ secrets.REGISTRY }}
           repository: todo-app
           image: todo-app
-          folder: src  # Folder zawierający Dockerfile
+          folder: src/ToDo  # Folder zawierający Dockerfile
           tag: ${{ github.sha }}
           branch: main
           
