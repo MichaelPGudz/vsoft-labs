@@ -1,0 +1,56 @@
+name: build_deploy_aks
+on:
+  workflow_dispatch:  # Ręczne uruchamianie workflow
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"  # Uruchom tylko gdy zmiany dotyczą kodu aplikacji
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code 
+        uses: actions/checkout@v3
+        
+      - name: ACR build
+        id: build-push-acr
+        uses: azure/acr-build@v1
+        with:
+          service_principal: ${{ secrets.SERVICE_PRINCIPAL }}
+          service_principal_password: ${{ secrets.SERVICE_PRINCIPAL_PASSWORD }}
+          tenant: ${{ secrets.TENANT }}
+          registry: ${{ secrets.REGISTRY }}
+          repository: todo-app
+          image: todo-app
+          folder: src  # Folder zawierający Dockerfile
+          tag: ${{ github.sha }}
+          
+      - name: Azure login
+        id: login
+        uses: azure/login@v1.4.3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Set AKS context
+        id: set-context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: '${{ secrets.RESOURCE_GROUP }}' 
+          cluster-name: '${{ secrets.CLUSTER_NAME }}'
+          
+      - name: Setup kubectl
+        id: install-kubectl
+        uses: azure/setup-kubectl@v3
+        
+      - name: Deploy to AKS
+        id: deploy-aks
+        uses: Azure/k8s-deploy@v4
+        with:
+          namespace: 'default'
+          manifests: |
+             kubernetes/manifests/deployment.yaml
+             kubernetes/manifests/service.yaml
+          images: '${{ secrets.REGISTRY }}.azurecr.io/todo-app:${{ github.sha }}'
+          pull-images: false
