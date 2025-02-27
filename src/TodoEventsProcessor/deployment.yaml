@@ -31,3 +31,32 @@ spec:
         - name: APPLICATIONINSIGHTS_CONNECTION_STRING
           value: "InstrumentationKey=fa7d8419-4cb8-4b09-a255-d96d34b12065;IngestionEndpoint=https://polandcentral-0.in.applicationinsights.azure.com/;LiveEndpoint=https://polandcentral.livediagnostics.monitor.azure.com/;ApplicationId=c1981fb8-58d1-4a64-bf35-52399f503437"
 ---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: servicebus-trigger-auth
+spec:
+  secretTargetRef:
+  - parameter: connection
+    name: servicebus-secret  # Nazwa secretu
+    key: connection          # Klucz w secrecie
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: todo-worker-scaler
+spec:
+  scaleTargetRef:
+    name: todo-events-processor
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  pollingInterval: 5
+  cooldownPeriod: 30
+  triggers:
+  - type: azure-servicebus
+    metadata:
+      queueName: todoevents
+      messageCount: "5"
+    authenticationRef:
+      name: servicebus-trigger-auth  # Odwołanie do TriggerAuthentication
+---
