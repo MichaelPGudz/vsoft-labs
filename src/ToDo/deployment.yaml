@@ -41,7 +41,7 @@ spec:
       serviceAccountName: workload-identity-sa-group2
       containers:
         - name: todo
-          image: ${REGISTRY_NAME}.azurecr.io/todo-app:${IMAGE_TAG}
+          image: szkolenie202502262.azurecr.io/todo-app/todo-app:abc
           ports:
             - containerPort: 8080
           env:
