@@ -6,6 +6,10 @@ using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Kubernetes;
 using Microsoft.EntityFrameworkCore;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Messaging.ServiceBus;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +25,15 @@ builder.Services.AddDbContext<TodoDb>(opt => opt.UseSqlServer(connectionString))
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddEndpointsApiExplorer();
+
+var keyVaultUri = new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/");
+var secretClient = new SecretClient(keyVaultUri, new DefaultAzureCredential());
+var serviceBusConnection = secretClient.GetSecret("ServiceBusConnection").Value.Value;
+
+builder.Services.AddSingleton(new ServiceBusClient(serviceBusConnection));
+builder.Services.AddSingleton<ServiceBusService>();
+
+
 builder.Services.AddOpenApiDocument(config =>
 {
     config.DocumentName = "TodoAPI";
@@ -86,7 +99,7 @@ static async Task<IResult> GetTodo(int id, TodoDb db)
             : TypedResults.NotFound();
 }
 
-static async Task<IResult> CreateTodo(TodoItemDTO todoItemDTO, TodoDb db)
+static async Task<IResult> CreateTodo(TodoItemDTO todoItemDTO, TodoDb db, ServiceBusService serviceBus)
 {
     var todoItem = new Todo
     {
@@ -96,10 +109,11 @@ static async Task<IResult> CreateTodo(TodoItemDTO todoItemDTO, TodoDb db)
 
     db.Todos.Add(todoItem);
     await db.SaveChangesAsync();
-
-    todoItemDTO = new TodoItemDTO(todoItem);
-
-    return TypedResults.Created($"/todoitems/{todoItem.Id}", todoItemDTO);
+    
+    var dto = new TodoItemDTO(todoItem);
+    await serviceBus.SendMessageAsync(new TodoEvent("TodoCreated", dto));
+    
+    return TypedResults.Created($"/todoitems/{todoItem.Id}", dto);
 }
 
 static async Task<IResult> UpdateTodo(int id, TodoItemDTO todoItemDTO, TodoDb db)
@@ -129,3 +143,50 @@ static async Task<IResult> DeleteTodo(int id, TodoDb db)
 }
 // <snippet_handlers>
 // </snippet_all>
+
+public class TodoEvent
+{
+    public string EventType { get; set; }
+    public TodoItemDTO Todo { get; set; }
+    public DateTime Timestamp { get; set; }
+
+    public TodoEvent(string eventType, TodoItemDTO todo)
+    {
+        EventType = eventType;
+        Todo = todo;
+        Timestamp = DateTime.UtcNow;
+    }
+}
+
+public class ServiceBusService
+{
+    private readonly ServiceBusClient _client;
+    private const string QueueName = "todoevents";
+
+    public ServiceBusService(ServiceBusClient client)
+    {
+        _client = client;
+    }
+
+    public async Task SendMessageAsync(TodoEvent todoEvent)
+    {
+        try
+        {
+            var sender = _client.CreateSender(QueueName);
+            var messageBody = JsonSerializer.Serialize(todoEvent);
+            var message = new ServiceBusMessage(messageBody)
+            {
+                ContentType = "application/json",
+                Subject = todoEvent.EventType
+            };
+
+            await sender.SendMessageAsync(message);
+            Console.WriteLine($"Sent message: {todoEvent.EventType} for Todo {todoEvent.Todo.Id}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error sending message to Service Bus: {ex.Message}");
+            throw;
+        }
+    }
+}
