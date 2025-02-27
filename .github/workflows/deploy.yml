@@ -50,8 +50,6 @@ jobs:
         uses: Azure/k8s-deploy@v4
         with:
           namespace: 'default'
-          manifests: |
-             kubernetes/manifests/deployment.yaml
-             kubernetes/manifests/service.yaml
+          manifests: src/ToDo/deployment.yaml
           images: '${{ secrets.REGISTRY }}.azurecr.io/todo-app:${{ github.sha }}'
           pull-images: false
