@@ -1,3 +1,4 @@
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -47,6 +48,8 @@ spec:
           env:
             - name: ConnectionStrings__DefaultConnection
               value: Server=tcp:szkolenie20250226.database.windows.net,1433;Initial Catalog=Szkolenie;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication="Active Directory Default";
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              value: "InstrumentationKey=fa7d8419-4cb8-4b09-a255-d96d34b12065;IngestionEndpoint=https://polandcentral-0.in.applicationinsights.azure.com/;LiveEndpoint=https://polandcentral.livediagnostics.monitor.azure.com/;ApplicationId=c1981fb8-58d1-4a64-bf35-52399f503437"
 ---
 apiVersion: v1
 kind: Service
@@ -59,3 +62,26 @@ spec:
       targetPort: 8080
   selector:
     app: todo
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: appinsights-k8s-property-reader
+rules:
+- apiGroups: ["", "apps"]
+  resources: ["pods", "nodes", "replicasets", "deployments"]
+  verbs: ["get", "list"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: appinsights-k8s-property-reader-binding
+subjects:
+- kind: ServiceAccount
+  name: workload-identity-sa-group2   # Nazwa ServiceAccount z deployment.yaml
+  namespace: default  # Dostosuj do swojego namespace
+roleRef:
+  kind: ClusterRole
+  name: appinsights-k8s-property-reader
+  apiGroup: rbac.authorization.k8s.io
+---
