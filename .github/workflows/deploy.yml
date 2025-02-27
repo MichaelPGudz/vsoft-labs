@@ -22,7 +22,7 @@ jobs:
           service_principal_password: ${{ secrets.SERVICE_PRINCIPAL_PASSWORD }}
           tenant: ${{ secrets.TENANT }}
           registry: ${{ secrets.REGISTRY }}
-          repository: todo-app
+          repository: MichaelPGudz/vsoft-labs
           image: todo-app
           folder: src  # Folder zawierający Dockerfile
           tag: ${{ github.sha }}
