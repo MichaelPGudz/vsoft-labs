@@ -26,6 +26,7 @@ jobs:
           image: todo-app
           folder: src  # Folder zawierający Dockerfile
           tag: ${{ github.sha }}
+          branch: main
           
       - name: Azure login
         id: login
