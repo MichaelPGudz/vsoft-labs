@@ -3,13 +3,6 @@ kind: Deployment
 metadata:
   name: todo-events-processor
 spec:
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "128Mi"
-    limits:
-      cpu: "200m"
-      memory: "256Mi"
   selector:
     matchLabels:
       app: todo-events-processor
@@ -23,6 +16,13 @@ spec:
       containers:
       - name: todo-events-processor
         image: szkolenie202502262.azurecr.io/todo-events-processor/todo-events-processor:latest
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
         env:
         - name: KeyVaultName
           value: "team02"
