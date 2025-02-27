@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: todo-events-processor
+        azure.workload.identity/use: "true"
     spec:
       serviceAccountName: workload-identity-sa-group2  # Używamy istniejącego Service Account
       containers:
