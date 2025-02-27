@@ -53,3 +53,48 @@ jobs:
           manifests: src/ToDo/deployment.yaml
           images: '${{ secrets.REGISTRY }}.azurecr.io/todo-app/todo-app:${{ github.sha }}'
           pull-images: false
+  event-processor-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code 
+        uses: actions/checkout@v3
+        
+      - name: ACR build
+        id: build-push-acr
+        uses: azure/acr-build@v1
+        with:
+          service_principal: ${{ secrets.SERVICE_PRINCIPAL }}
+          service_principal_password: ${{ secrets.SERVICE_PRINCIPAL_PASSWORD }}
+          tenant: ${{ secrets.TENANT }}
+          registry: ${{ secrets.REGISTRY }}
+          repository: todo-events-processor
+          image: todo-events-processor
+          folder: src/TodoEventsProcessor  # Folder zawierający Dockerfile
+          tag: ${{ github.sha }}
+          branch: main
+          
+      - name: Azure login
+        id: login
+        uses: azure/login@v1.4.3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Set AKS context
+        id: set-context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: '${{ secrets.RESOURCE_GROUP }}' 
+          cluster-name: '${{ secrets.CLUSTER_NAME }}'
+          
+      - name: Setup kubectl
+        id: install-kubectl
+        uses: azure/setup-kubectl@v3
+        
+      - name: Deploy to AKS
+        id: deploy-aks
+        uses: Azure/k8s-deploy@v4
+        with:
+          namespace: 'default'
+          manifests: src/TodoEventsProcessor/deployment.yaml
+          images: '${{ secrets.REGISTRY }}.azurecr.io/todo-events-processor/todo-events-processor:${{ github.sha }}'
+          pull-images: false
