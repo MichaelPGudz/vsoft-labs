@@ -1,10 +1,12 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApi", "src\ToDo\TodoApi.csproj", "{8548B298-094C-D22D-9FB7-16B99BB5E131}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoEventsProcessor", "src\TodoEventsProcessor\TodoEventsProcessor.csproj", "{F73C5A02-8B8C-43FE-AB3F-ED49DB03E91F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,12 +18,17 @@ Global
 		{8548B298-094C-D22D-9FB7-16B99BB5E131}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8548B298-094C-D22D-9FB7-16B99BB5E131}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8548B298-094C-D22D-9FB7-16B99BB5E131}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F73C5A02-8B8C-43FE-AB3F-ED49DB03E91F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F73C5A02-8B8C-43FE-AB3F-ED49DB03E91F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F73C5A02-8B8C-43FE-AB3F-ED49DB03E91F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F73C5A02-8B8C-43FE-AB3F-ED49DB03E91F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8548B298-094C-D22D-9FB7-16B99BB5E131} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{F73C5A02-8B8C-43FE-AB3F-ED49DB03E91F} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2B3BD021-E81B-4FD2-8CB3-30D16F9274A9}
