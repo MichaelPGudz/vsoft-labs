@@ -92,7 +92,7 @@ jobs:
         
       - name: Deploy to AKS
         id: deploy-aks
-        uses: Azure/k8s-deploy@v4
+        uses: Azure/k8s-deploy@v5
         with:
           namespace: 'default'
           manifests: src/TodoEventsProcessor/deployment.yaml

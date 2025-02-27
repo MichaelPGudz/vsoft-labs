@@ -15,7 +15,7 @@ spec:
       serviceAccountName: workload-identity-sa-group2  # Używamy istniejącego Service Account
       containers:
       - name: todo-events-processor
-        image: <acr-name>.azurecr.io/todo-events-processor:latest
+        image: szkolenie202502262.azurecr.io/todo-events-processor/todo-events-processor:latest
         env:
         - name: KeyVaultName
           value: "team02"
