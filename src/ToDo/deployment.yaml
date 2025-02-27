@@ -99,7 +99,7 @@ metadata:
   name: todo-api-scaler
 spec:
   scaleTargetRef:
-    name: todo-app
+    name: todo-deployment
   minReplicaCount: 1  # API zawsze musi mieć minimum jedną instancję
   maxReplicaCount: 10
   pollingInterval: 15
