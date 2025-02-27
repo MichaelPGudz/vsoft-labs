@@ -91,12 +91,19 @@ static async Task<IResult> GetCompleteTodos(TodoDb db) {
     return TypedResults.Ok(await db.Todos.Where(t => t.IsComplete).Select(x => new TodoItemDTO(x)).ToListAsync());
 }
 
-static async Task<IResult> GetTodo(int id, TodoDb db)
+static async Task<IResult> GetTodo(int id, TodoDb db, ServiceBusService serviceBus)
 {
-    return await db.Todos.FindAsync(id)
-        is Todo todo
+    var result =  await db.Todos.FindAsync(id);
+
+    if (result != null)
+    {
+        var dto = new TodoItemDTO(result);
+        await serviceBus.SendMessageAsync(new TodoEvent("TodoGeted", dto));
+    }
+
+    return result is Todo todo
             ? TypedResults.Ok(new TodoItemDTO(todo))
-            : TypedResults.NotFound();
+            : TypedResults.NotFound();;
 }
 
 static async Task<IResult> CreateTodo(TodoItemDTO todoItemDTO, TodoDb db, ServiceBusService serviceBus)
@@ -130,12 +137,14 @@ static async Task<IResult> UpdateTodo(int id, TodoItemDTO todoItemDTO, TodoDb db
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> DeleteTodo(int id, TodoDb db)
+static async Task<IResult> DeleteTodo(int id, TodoDb db, ServiceBusService serviceBus)
 {
     if (await db.Todos.FindAsync(id) is Todo todo)
     {
         db.Todos.Remove(todo);
         await db.SaveChangesAsync();
+        var dto = new TodoItemDTO(todo);
+        await serviceBus.SendMessageAsync(new TodoEvent("TodoDeleted", dto));
         return TypedResults.NoContent();
     }
 
